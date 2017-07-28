@@ -1,22 +1,14 @@
 const fs = require('fs');
 const THREE = require('three');
-const readline = require('readline');
-
-var numFrames;
-var secsPerFrame;
-var bvhdata = [];
-var lin;
 
 fs.readFile('input_vec.csv', 'utf-8', function (err,raw) {
   if (err) {
-    console.log("hage")
     return console.log(err);
   }
-  console.log("hoge");
   //console.log(data);
 
   //split by row and delete garbage
-  data = raw.split(/\r?\n/)
+  data = raw.split(/\r?\n/);
   //console.log(data.length);
   for(var i=0; i < data.length; i++){
     //console.log(data[i]);
