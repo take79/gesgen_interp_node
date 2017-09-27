@@ -2,3 +2,5 @@ node_modules/
 output_vec.csv
 input_vec.csv
 data/
+*.swp
+hformat.txt

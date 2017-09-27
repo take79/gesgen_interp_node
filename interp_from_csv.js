@@ -1,7 +1,7 @@
 const fs = require('fs');
 const THREE = require('three');
 
-fs.readFile('input_vec.csv', 'utf-8', function (err,raw) {
+fs.readFile(process.argv[2], 'utf-8', function (err,raw) {
   if (err) {
     return console.log(err);
   }
@@ -15,7 +15,7 @@ fs.readFile('input_vec.csv', 'utf-8', function (err,raw) {
     data[i] = data[i].split(',');
   }
 
-  var interp_steps = 2; //何分割するか
+  var interp_steps = 5; //何分割するか
 
   //console.log(rows.length)
   for (var i=0; i*interp_steps<data.length-interp_steps-1; i++){
@@ -38,27 +38,31 @@ fs.readFile('input_vec.csv', 'utf-8', function (err,raw) {
       interp.push(portion)
     }
 
-    console.log(interp[0].length)
+    //console.log(interp[0].length)
     for (var l=0; l<interp_steps-1; l++){
       data.splice(stepi+(interp_steps-1), 0, interp[l]);
     }
-    console.log(data.length)
+    //console.log(data.length)
     //return;
   }
   for(var i=0; i<data.length; i++){
+    for(var j=0; j<data[i].length; j++){
+      data[i][j] = parseFloat(data[i][j]).toFixed(6);
+    }
     data[i] = data[i].join(',');
-    console.log(data[i]);
+    //console.log(data[i]);
   }
   data = data.join('\n');
   //bvh.framedata = data;
   //console.log(interp_data)
   //console.log(data.length);
   //console.log(data[200].length);
-  fs.writeFile("output_vec.csv", data, function(err){
+  output = process.argv[2].replace(".csv", "_out.csv")
+  fs.writeFile(output, data, function(err){
     if(err){
       return console.log(err);
     }
-    console.log("output saved to output_vec.csv");
+    console.log("output saved to" +  output);
   });
   return;
 });
