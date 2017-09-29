@@ -11,7 +11,7 @@ for i in range(1,1183):
 
     frametime = raw[310].split()
     print("frametime is " + frametime[2])
-    if float(frametime[2]) != 0.0416667:
+    if float(frametime[2]) != 0.0416667 or i == 301:
         print("frame time is correct at 0.01000, skipping...")
         continue
 
@@ -24,7 +24,7 @@ for i in range(1,1183):
         del raw[i][st:st + 3]
       raw[i] = " ".join(raw[i])
 
-    print(raw[0])
+    #print(raw[0])
 
     wf = open(out_file_path, "w")
     csv_writer = csv.writer(wf, lineterminator='\n', escapechar=',', quoting=csv.QUOTE_NONE)

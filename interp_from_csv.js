@@ -8,9 +8,12 @@ fs.readFile(process.argv[2], 'utf-8', function (err,raw) {
   //console.log(data);
 
   //split by row and delete garbage
-  data = raw.split(/\r?\n/);
+  //console.log(raw)
+  data = raw.split(/\n/);
   //console.log(data.length);
-  for(var i=0; i < data.length; i++){
+  loops = data.length
+  //console.log(data[loops-1])
+  for(var i=0; i < loops; i++){
     //console.log(data[i]);
     data[i] = data[i].split(',');
   }
@@ -18,30 +21,38 @@ fs.readFile(process.argv[2], 'utf-8', function (err,raw) {
   var interp_steps = 5; //何分割するか
 
   //console.log(rows.length)
-  for (var i=0; i*interp_steps<data.length-interp_steps-1; i++){
+  for (var i=0; i<loops-1; i++){
     var stepi = i*interp_steps;
+    //console.log(i)
+    //console.log(data.length)
     interp = []
 
-    for (var tmp=0; tmp<interp_steps-1; tmp++){
+    for (var j=0; j<interp_steps-1; j++){
+
       var portion = [];
-      for (var j=0; j*3<data[0].length; j++){
-        var stepj = j*3;
-        //console.log(stepj)
-        var eust = new THREE.Euler(THREE.Math.degToRad(data[stepi][stepj+1]), THREE.Math.degToRad(data[stepi][stepj+2]), THREE.Math.degToRad(data[stepi][stepj]));
-        var euend = new THREE.Euler(THREE.Math.degToRad(data[stepi+interp_steps-1][stepj+1]), THREE.Math.degToRad(data[stepi+interp_steps-1][stepj+2]), THREE.Math.degToRad(data[stepi+interp_steps-1][stepj]));
+
+      for (var k=0; k*3<data[0].length; k++){
+        var stepk = k*3;
+        var eust = new THREE.Euler(THREE.Math.degToRad(data[stepi][stepk+1]), THREE.Math.degToRad(data[stepi][stepk+2]), THREE.Math.degToRad(data[stepi][stepk]));
+        //if(k==50) console.log(data[stepi][stepk+1] + ", " +  data[stepi][stepk+2] + ", " + data[stepi][stepk])
+        var euend = new THREE.Euler(THREE.Math.degToRad(data[stepi+1][stepk+1]), THREE.Math.degToRad(data[stepi+1][stepk+2]), THREE.Math.degToRad(data[stepi+1][stepk]));
+        //if(k==50) console.log(data[stepi+1][stepk+1] + ", " +  data[stepi+1][stepk+2] + ", " + data[stepi+1][stepk])
         var qtst = new THREE.Quaternion().setFromEuler(eust);
         var qtend = new THREE.Quaternion().setFromEuler(euend);
-        var mid = qtst.slerp(qtend, (1/interp_steps)*(tmp+1));
-        var mid_eu = new THREE.Euler().setFromQuaternion(mid);
-        portion.push(THREE.Math.radToDeg(mid_eu.z), THREE.Math.radToDeg(mid_eu.x), THREE.Math.radToDeg(mid_eu.y));
+
+        var qtmid = qtst.normalize().slerp(qtend.normalize(), (1/interp_steps)*(j+1));
+        var eumid = new THREE.Euler().setFromQuaternion(qtmid.normalize());
+
+        portion.push(THREE.Math.radToDeg(eumid.z), THREE.Math.radToDeg(eumid.x), THREE.Math.radToDeg(eumid.y));
       }
       interp.push(portion)
     }
 
-    //console.log(interp[0].length)
     for (var l=0; l<interp_steps-1; l++){
-      data.splice(stepi+(interp_steps-1), 0, interp[l]);
+      data.splice(stepi+1+l, 0, interp[l]);
     }
+    //console.log(interp[0].length)
+    
     //console.log(data.length)
     //return;
   }
@@ -64,6 +75,7 @@ fs.readFile(process.argv[2], 'utf-8', function (err,raw) {
     }
     console.log("output saved to" +  output);
   });
+  console.log(loops)
   return;
 });
 

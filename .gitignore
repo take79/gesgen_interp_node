@@ -4,3 +4,5 @@ input_vec.csv
 data/
 *.swp
 hformat.txt
+res.txt
+test.js
