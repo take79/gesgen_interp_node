@@ -4,6 +4,7 @@
   "description": "",
   "main": "bvhreader.js",
   "dependencies": {
+    "n": "^2.1.8",
     "three": "^0.86.0"
   },
   "devDependencies": {},
