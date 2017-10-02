@@ -43,7 +43,7 @@ for (var i=0; i<loops-1; i++){
       var qtmid = qtst.normalize().slerp(qtend.normalize(), (1/interp_steps)*(j+1));
       var eumid = new THREE.Euler().setFromQuaternion(qtmid.normalize());
 
-      portion.push(THREE.Math.radToDeg(eumid.z)-180, THREE.Math.radToDeg(eumid.x), THREE.Math.radToDeg(eumid.y));
+      portion.push(THREE.Math.radToDeg(eumid.z), THREE.Math.radToDeg(eumid.x), THREE.Math.radToDeg(eumid.y));
     }
     interp.push(portion)
   }
