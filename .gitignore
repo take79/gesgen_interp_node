@@ -6,3 +6,4 @@ data/
 hformat.txt
 res.txt
 test.js
+*.bvh

@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import sys
+import pyquaternion as pyq
 
 with open (sys.argv[1], 'r') as f:
   raw = f.readlines()
@@ -52,35 +53,27 @@ with open (sys.argv[1], 'r') as f:
     else:
       children = [idx + 1]
 
-    node = dict([('name', name), ('parent', parent), ('children', children), ('offset', joint_offsets[idx]), ('rel_pos', None), ('abs_pos', None)])
+    node = dict([('name', name), ('parent', parent), ('children', children), ('offset', joint_offsets[idx]), ('rel_degs', None), ('abs_qt', None), ('rel_pos', None), ('abs_pos', None)])
     if idx == 0:
         node['rel_pos'] = node['abs_pos'] = [float(0), float(60), float(0)]
+        node['abs_qt'] = pyq.Quaternion() #[z_org_axis, x_org_axis, y_org_axis]
     nodes.append(node)
 
   for idx, frame in enumerate(frames):
     frames[idx] = frame.split()
 
-  relatives = []
   node_idx = 0
-  for i in range(51):
+  for i in range(51): #changed from 51
     stepi = i*3
     z_deg = float(frames[0][stepi])
     x_deg = float(frames[0][stepi+1])
     y_deg = float(frames[0][stepi+2])
 
-    xrot_mat = np.matrix([[1, 0, 0], [0, np.cos(np.radians(x_deg)), -np.sin(np.radians(x_deg))], [0, np.sin(np.radians(x_deg)), np.cos(np.radians(x_deg))]])
-    yrot_mat = np.matrix([[np.cos(np.radians(y_deg)), 0, np.sin(np.radians(y_deg))], [0, 1, 0], [-np.sin(np.radians(y_deg)), 0, np.cos(np.radians(y_deg))]])
-    zrot_mat = np.matrix([[np.cos(np.radians(z_deg)), -np.sin(np.radians(z_deg)), 0], [np.sin(np.radians(z_deg)), np.cos(np.radians(z_deg)), 0], [0, 0, 1]])
-
     if nodes[node_idx]['name'] == 'End Site':
       node_idx = node_idx + 1
+    nodes[node_idx]['rel_degs'] = [z_deg, x_deg, y_deg]
     current_node = nodes[node_idx]
     print(current_node['name'])
-
-    for child_idx in current_node['children']:
-      child_node = nodes[child_idx]
-      child_offset = np.array([child_node['offset']]).T
-      child_node['rel_pos'] = np.dot(zrot_mat, np.dot(yrot_mat, np.dot(xrot_mat, child_offset))).A1
 
     node_idx = node_idx + 1
 
@@ -88,6 +81,21 @@ with open (sys.argv[1], 'r') as f:
     abs_pos = np.array([0, 0, 0])
     current_node = start_node
     print(">" + current_node['name'])
+    if start_node['children'] is not None: #= if not start_node['name'] = 'End Site'
+      for child_idx in start_node['children']:
+        child_node = nodes[child_idx]
+
+        child_offset = np.array(child_node['offset'])
+        print(start_node['rel_degs'])
+        qz = pyq.Quaternion(axis=[0, 0, 1], degrees=start_node['rel_degs'][0])
+        qx = pyq.Quaternion(axis=[1, 0, 0], degrees=start_node['rel_degs'][1])
+        qy = pyq.Quaternion(axis=[0, 1, 0], degrees=start_node['rel_degs'][2])
+        qrot = qz * qx * qy
+        offset_rotated = qrot.rotate(child_offset)
+        child_node['rel_pos']= start_node['abs_qt'].rotate(offset_rotated)
+
+        child_node['abs_qt'] = start_node['abs_qt'] * qrot
+        print(child_node['abs_qt'])
     while current_node['parent'] is not None:
       print(nodes[current_node['parent']]['name'] + "->")
       abs_pos = abs_pos + current_node['rel_pos']
@@ -97,18 +105,15 @@ with open (sys.argv[1], 'r') as f:
     print("-------------------------------------------")
 
   #print(joint_offsets)
-  print(len(joint_offsets))
-  print(joint_names)
-  print(len(joint_names))
-  for node in nodes:
-      print(node)
+  #print(len(joint_offsets))
+  #print(joint_names)
+  #print(len(joint_names))
+  #for node in nodes:
+     #print(node)
 
-  #for i in range(len(nodes)):
-  #  current_node = nodes[i]
-  #  print(">" + current_node['name'])
-  #  while current_node['parent'] is not None:
-  #    print(nodes[current_node['parent']]['name'] + "->")
-  #    current_node = nodes[current_node['parent']]
-  #  print("origin")
-  #  print("-------------------------------------------")
-
+  with open(sys.argv[2], 'w') as fr:
+    for node in nodes:
+      line = node['abs_pos']
+      print(line)
+      if line is not None:
+        fr.write(str(line[0]) + " " + str(line[1]) + " " + str(line[2]) + ",")
