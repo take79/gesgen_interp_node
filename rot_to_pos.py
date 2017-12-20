@@ -3,13 +3,7 @@ import math
 import sys
 import pyquaternion as pyq
 
-with open (sys.argv[1], 'r') as f:
-  raw = f.readlines()
-
-  hierarchy = raw[0:311]
-  frames = raw[311:]
-  print(len(frames))
-
+def create_hierarchy_nodes(hierarchy):
   joint_offsets = []
   joint_names = []
 
@@ -25,7 +19,7 @@ with open (sys.argv[1], 'r') as f:
         joint_names.append(hierarchy[idx][1])
       elif line_type == 'End':
         joint_names.append('End Site')
-
+  
   nodes = []
   for idx, name in enumerate(joint_names):
     if idx == 0:
@@ -40,7 +34,7 @@ with open (sys.argv[1], 'r') as f:
       parent = 0
     else:
       parent = idx - 1
-
+  
     if name == 'End Site':
       children = None
     elif idx == 0: #hips
@@ -53,13 +47,16 @@ with open (sys.argv[1], 'r') as f:
       children = [34, 38, 42, 46, 50]
     else:
       children = [idx + 1]
-
+  
     node = dict([('name', name), ('parent', parent), ('children', children), ('offset', joint_offsets[idx]), ('rel_degs', None), ('abs_qt', None), ('rel_pos', None), ('abs_pos', None)])
     if idx == 0:
         node['rel_pos'] = node['abs_pos'] = [float(0), float(60), float(0)]
         node['abs_qt'] = pyq.Quaternion() #[z_org_axis, x_org_axis, y_org_axis]
     nodes.append(node)
 
+  return nodes
+
+def rot_vec_to_abs_pos_vec(frames, nodes):
   output_lines = []
   for idx, frame in enumerate(frames):
     frames[idx] = frame.split()
@@ -83,7 +80,7 @@ with open (sys.argv[1], 'r') as f:
       #print(nodes)
 
     for start_node in nodes:
-      abs_pos = np.array([0, 0, 0])
+      abs_pos = np.array([0, 60, 0])
       current_node = start_node
       #print(">" + current_node['name'])
       if start_node['children'] is not None: #= if not start_node['name'] = 'end site'
@@ -114,16 +111,68 @@ with open (sys.argv[1], 'r') as f:
       line.append(node['abs_pos'])
     output_lines.append(line)
 
-  print(str(len(output_lines)) + ", " + str(len(output_lines[0])) + ", " + str(len(output_lines[0][0])))
+  #print(str(len(output_lines)) + ", " + str(len(output_lines[0])) + ", " + str(len(output_lines[0][0])))
   #print(joint_offsets)
   #print(len(joint_offsets))
   #print(joint_names)
   #print(len(joint_names))
   #for node in nodes:
      #print(node)
+  #print(nodes[0]['abs_pos'])
 
+  #write_to_file(output_lines)
+  #output_vels = []
+  #for idx,line in enumerate(output_lines):
+  #  vel_line = []
+  #  for jn,joint_pos in enumerate(line):
+  #    if idx == 0:
+  #      vels = np.array([0.0, 0.0, 0.0])
+  #    else:
+  #      vels = np.array([joint_pos[0] - output_lines[idx-1][jn][0], joint_pos[1] - output_lines[idx-1][jn][1], joint_pos[2] - output_lines[idx-1][jn][2]])
+  #    vel_line.append(vels)
+  #  output_vels.append(vel_line)
+  #print(output_vels)
+
+  #out = []
+  #for idx, line in enumerate(output_vels):
+  #  ln = []
+  #  for jn, joint_vel in enumerate(line):
+  #    ln.append(output_lines[idx][jn])
+  #    ln.append(joint_vel)
+  #  out.append(ln)
+
+  #print(len(out))
+  #print(len(out[0]))
+  output_array = np.asarray(output_lines)
+  #print(len(output_array[0]))
+  #print(len(output_array[0][0]))
+  out_data = np.empty([len(output_array), 192])
+  for idx,line in enumerate(output_array):
+    print(line)
+    out_data[idx] = line.flatten()
+
+  print(out_data.shape)
+  return out_data
+
+def write_pos_to_txt(out_data):
   with open(sys.argv[2], 'w') as fr:
-    for line in output_lines:
-      for pos in line:
-        fr.write(str(pos[0]) + " " + str(pos[1]) + " " + str(pos[2]) + ",")
+    for line in out_data:
+      for el in line:
+        fr.write(str(el) + " ")
       fr.write("\n")
+
+if __name__ == '__main__':
+  f = open('hierarchy.txt', 'r')
+  hierarchy = f.readlines()
+  f.close()
+  nodes = create_hierarchy_nodes(hierarchy)
+  print(nodes)
+  print(len(nodes))
+  fb = open(sys.argv[1], 'r')
+  frames = fb.readlines()
+  fb.close()
+  del frames[0:311]
+  frames = frames[::5]
+
+  out_data = rot_vec_to_abs_pos_vec(frames, nodes)
+  write_pos_to_txt(out_data)
