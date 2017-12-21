@@ -8,6 +8,8 @@ with open (sys.argv[1], 'r') as f:
 
   hierarchy = raw[0:311]
   frames = raw[311:]
+  #100fps to 20
+  frames = [::5]
   print(len(frames))
 
   joint_offsets = []

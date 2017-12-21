@@ -27,6 +27,7 @@ def average_jerk(predicted):
   jerks = np.empty((len(predicted), len(predicted[0])-3))
   jerks = np.diff(predicted, n=3)
   jerks = jerks.transpose()
+  jerks = np.absolute(jerks)
 
   print(jerks.shape)
   print("--------------------")
@@ -53,7 +54,7 @@ def all_test_apes():
   fw.close()
 
 def all_test_jerks():
-  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_jerk.txt", 'w')
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_absjerk.txt", 'w')
   out_lines = []
   for i in range(1093, 1183):
     predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_" + sys.argv[2] + ".txt")
@@ -67,7 +68,7 @@ def all_test_jerks():
   fw.close() 
 
 def all_test_raw_jerks():
-  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_raw_jerk.txt", 'w')
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_raw_absjerk.txt", 'w')
   out_lines = []
   for i in range(1093, 1183):
     predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_pos.txt")
@@ -81,7 +82,7 @@ def all_test_raw_jerks():
   fw.close()
 
 def all_test_original_jerks():
-  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_jerk.txt", 'w')
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_absjerk.txt", 'w')
   out_lines = []
   for i in range(1093, 1183):
     original = create_array_from_file("data/" + sys.argv[1] + "/gesture" + str(i) + ".txt")
