@@ -8,4 +8,5 @@ res.txt
 test.js
 *.bvh
 scp_datas.sh
+*.txt
 

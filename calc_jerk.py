@@ -21,15 +21,20 @@ def APE(predicted, original):
   
   return all_avg
 
-def average_jerk(predicted)
-  jerks = np.empty(len(predicted))
-  for i in range(len(predicted)):
-    jerks[i] = np.diff(predicted, n=3)
+def average_jerk(predicted):
+  print(predicted.shape)
+  predicted = predicted.transpose()
+  jerks = np.empty((len(predicted), len(predicted[0])-3))
+  jerks = np.diff(predicted, n=3)
+  jerks = jerks.transpose()
 
-   frame_javg = np.average(jerks, axis=1)
-   all_javg = np.average(frame_javg)
+  print(jerks.shape)
+  print("--------------------")
 
-   return all_javg
+  frame_javg = np.average(jerks, axis=1)
+  all_javg = np.average(frame_javg)
+
+  return all_javg
 
 
 def all_test_apes():
@@ -61,7 +66,23 @@ def all_test_jerks():
   fw.writelines(out_lines)
   fw.close() 
 
+def all_test_raw_jerks():
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_raw_jerk.txt", 'w')
+  out_lines = []
+  for i in range(1093, 1183):
+    predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_pos.txt")
+
+    jerk = average_jerk(predicted)
+
+    line = str(i) + "," +  str(jerk) + "\n"
+    out_lines.append(line)
+
+  fw.writelines(out_lines)
+  fw.close()
+
 if __name__ == "__main__":
-  #all_test_apes()
-  all_test_jerks()
+  if (int(sys.argv[3]) == 0):
+    all_test_jerks()
+  if (int(sys.argv[3]) == 1):
+    all_test_raw_jerks()
 
