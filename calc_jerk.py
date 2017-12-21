@@ -80,9 +80,25 @@ def all_test_raw_jerks():
   fw.writelines(out_lines)
   fw.close()
 
+def all_test_original_jerks():
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_jerk.txt", 'w')
+  out_lines = []
+  for i in range(1093, 1183):
+    original = create_array_from_file("data/" + sys.argv[1] + "/gesture" + str(i) + ".txt")
+
+    jerk = average_jerk(original)
+
+    line = str(i) + "," +  str(jerk) + "\n"
+    out_lines.append(line)
+
+  fw.writelines(out_lines)
+  fw.close()
+
 if __name__ == "__main__":
   if (int(sys.argv[3]) == 0):
     all_test_jerks()
   if (int(sys.argv[3]) == 1):
     all_test_raw_jerks()
+  if (int(sys.argv[3]) == 2):
+    all_test_original_jerks()
 

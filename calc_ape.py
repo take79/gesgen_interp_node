@@ -36,6 +36,24 @@ def all_test_apes():
   fw.writelines(out_lines)
   fw.close()
 
+def all_test_raw_apes():
+  fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_raw_ape.txt", 'w')
+  out_lines = []
+  for i in range(1093, 1183):
+    predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_pos.txt")
+    original = create_array_from_file("data/original/gesture" + str(i) + ".txt")
+
+    ape = APE(predicted, original)
+
+    line = str(i) + "," +  str(ape) + "\n"
+    out_lines.append(line)
+
+  fw.writelines(out_lines)
+  fw.close()
+
 if __name__ == "__main__":
-  all_test_apes()
+  if (int(sys.argv[3]) == 0):
+    all_test_apes()
+  if (int(sys.argv[3]) == 1):
+    all_test_raw_apes()
 
