@@ -26,7 +26,7 @@ def all_test_apes():
   out_lines = []
   for i in range(1093, 1183):
     predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_" + sys.argv[2] + ".txt")
-    original = create_array_from_file("data/original/gesture" + str(i) + ".txt")
+    original = create_array_from_file("data/original/gesture" + str(i) + "_pos.txt")
 
     ape = APE(predicted, original)
 
@@ -41,7 +41,7 @@ def all_test_raw_apes():
   out_lines = []
   for i in range(1093, 1183):
     predicted = create_array_from_file("data/" + sys.argv[1] + "/predicted/gesture" + str(i) + "_pos.txt")
-    original = create_array_from_file("data/original/gesture" + str(i) + ".txt")
+    original = create_array_from_file("data/original/gesture" + str(i) + "_pos.txt")
 
     ape = APE(predicted, original)
 

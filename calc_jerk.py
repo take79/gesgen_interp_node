@@ -85,7 +85,7 @@ def all_test_original_jerks():
   fw = open("data/" + sys.argv[1] + "/" + sys.argv[1] + "_absjerk.txt", 'w')
   out_lines = []
   for i in range(1093, 1183):
-    original = create_array_from_file("data/" + sys.argv[1] + "/gesture" + str(i) + ".txt")
+    original = create_array_from_file("data/" + sys.argv[1] + "/gesture" + str(i) + "_pos.txt")
 
     jerk = average_jerk(original)
 
