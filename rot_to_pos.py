@@ -171,8 +171,10 @@ if __name__ == '__main__':
   fb = open(sys.argv[1], 'r')
   frames = fb.readlines()
   fb.close()
-  del frames[0:311]
-  frames = frames[::5]
+  del frames[0:312]
+  # original settings below
+  #del frames[0:311]
+  #frames = frames[::5]
 
   out_data = rot_vec_to_abs_pos_vec(frames, nodes)
   write_pos_to_txt(out_data)
